@@ -14,9 +14,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
 import java.util.Properties;
-
 import static org.springframework.http.HttpMethod.POST;
 
 @Configuration
@@ -69,4 +67,3 @@ public class SecurityConfig {
         return mailSender;
     }
 }
-

@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 @Service
 public class RoleUtilisateurService {
-
     private final RoleUtilisateurRipository roleUtilisateurRipository;
-
     public void persisteRoleUtilisateur(RoleUtilisateur role) {roleUtilisateurRipository.save(role);}
 }

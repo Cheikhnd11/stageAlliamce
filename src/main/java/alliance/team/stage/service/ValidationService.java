@@ -7,10 +7,8 @@ import alliance.team.stage.repository.ValidationRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.util.Random;
-
 import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Service

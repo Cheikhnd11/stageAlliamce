@@ -13,18 +13,17 @@ import org.springframework.stereotype.Service;
 @Transactional
 @AllArgsConstructor
 public class UtilisateurService implements UserDetailsService {
+    private  ValidationService validationService;
+    private UtilisateurRepository utilisateurRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return this.utilisateurRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException(username));
     }
 
-    private  ValidationService validationService;
-    private UtilisateurRepository utilisateurRepository;
     public void inscription(Utilisateur utilisateur) {
         utilisateurRepository.save(utilisateur);
         validationService.saveValidation(utilisateur);
 
     }
-
 }
