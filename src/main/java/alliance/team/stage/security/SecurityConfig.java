@@ -7,6 +7,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -17,7 +18,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.Properties;
 
-import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.*;
 
 @Configuration
 @EnableWebSecurity
@@ -30,11 +31,16 @@ public class SecurityConfig {
                         .csrf(AbstractHttpConfigurer::disable)
                         .authorizeHttpRequests(
                                 authorize ->
-                                        authorize.requestMatchers(POST,"/inscription").permitAll()
+                                        authorize.requestMatchers(POST,"/inscription").hasRole("ADMIN")
+                                                .requestMatchers(DELETE,"/dalateUser/{mail}").hasRole("ADMIN")
+                                                .requestMatchers(POST,"/passwordForgueted/{email}").hasRole("ADMIN")
                                                 .requestMatchers(POST,"/activation").permitAll()
                                                 .requestMatchers(POST,"/connexion").permitAll()
+                                                .requestMatchers(POST,"initialisePassword").permitAll()
                                                 .anyRequest().authenticated()
-                        ).build();
+                        )
+                        .httpBasic(Customizer.withDefaults())
+                        .build();
     }
 
     @Bean

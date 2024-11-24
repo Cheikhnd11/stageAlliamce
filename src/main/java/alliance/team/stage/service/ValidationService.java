@@ -35,7 +35,7 @@ public class ValidationService {
         notificationService.sendNotification(validationCompte);
     }
 
-    public boolean activationCompte(String code,String mail, String password) {
+    public boolean activationCompte(String code,String mail, String password,String confirmePassword) {
         ValidationCompte validationCompte = validationRepository.findByUtilisateur_Email(mail);
         if (validationCompte == null) {
             throw new IllegalArgumentException("Utilisateur non trouvable");
@@ -46,6 +46,9 @@ public class ValidationService {
         if (validationCompte.getExpirationDate().isBefore(Instant.now())) {
             throw new IllegalArgumentException("Expiration date invalid");
         }
+        if (!password.equals(confirmePassword)) {
+            throw new IllegalArgumentException("Password incorrect");
+        }
         validationCompte.setActivationDate(Instant.now());
         validationRepository.save(validationCompte);
         Utilisateur utilisateur = validationCompte.getUtilisateur();
@@ -54,4 +57,5 @@ public class ValidationService {
         utilisateurRepository.save(utilisateur);
         return true;
     }
+
 }
