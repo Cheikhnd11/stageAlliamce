@@ -109,7 +109,7 @@ public class UtilisateurController {
                 continue; // Passe au code suivant si le libellé ne correspond pas
             }
 
-            // Vérification de l'expiration du code
+            // Vérification de  l'expiration du code
             if (dbCode.getDateExpiration().isBefore(Instant.now())) {
                 return ResponseEntity.badRequest().body("Code expiré !");
             }
