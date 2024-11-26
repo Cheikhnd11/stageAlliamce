@@ -21,8 +21,6 @@ public class Code {
     private String libelle;
     private Instant dateCreation;
     private Instant dateExpiration;
-    @Transient
     private String password;
-    @Transient
     private String confirmationPassword;
 }

@@ -36,7 +36,7 @@ public class SecurityConfig {
                                                 .requestMatchers(POST,"/passwordForgueted/{email}").hasRole("ADMIN")
                                                 .requestMatchers(POST,"/activation").permitAll()
                                                 .requestMatchers(POST,"/connexion").permitAll()
-                                                .requestMatchers(POST,"initialisePassword").permitAll()
+                                                .requestMatchers(PUT,"initialisePassword").permitAll()
                                                 .anyRequest().authenticated()
                         )
                         .httpBasic(Customizer.withDefaults())

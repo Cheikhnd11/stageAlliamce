@@ -16,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
 import java.util.List;
@@ -29,9 +30,7 @@ import java.util.NoSuchElementException;
 public class UtilisateurController {
     private final RoleUtilisateurService roleUtilisateurService;
     private final ValidationService validationService;
-    private final UtilisateurRepository utilisateurRepository;
     private final NotificationService notificationService;
-    private final CodeService codeService;
     private UtilisateurService utilisateurService;
     private AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
@@ -85,52 +84,23 @@ public class UtilisateurController {
         try {
             Utilisateur utilisateur = utilisateurService.findUserByMail(email);
             if (utilisateur == null) {
-                return ResponseEntity.notFound().build();
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
             notificationService.sendNotificationForPassword(email);
         }catch (Exception e) {
             e.printStackTrace();
         }
-        return ResponseEntity.ok("Password OK");
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 
     }
 
-    @PostMapping("initialisePassword")
+    @PutMapping("initialisePassword")
     public ResponseEntity<String> initialisePassword(@RequestBody Code code) {
-        // Récupération des codes associés à l'email
-        List<Code> codesInDb = codeService.findByEmail(code.getEmail());
-
-        if (codesInDb.isEmpty()) {
-            return ResponseEntity.badRequest().body("Aucun code associé à cet email !");
+        try {
+            return utilisateurService.initialisePassword(code);
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
         }
-        for (Code dbCode : codesInDb) {
-            // Vérification du libellé
-            if (!dbCode.getLibelle().equals(code.getLibelle())) {
-                continue; // Passe au code suivant si le libellé ne correspond pas
-            }
-
-            // Vérification de  l'expiration du code
-            if (dbCode.getDateExpiration().isBefore(Instant.now())) {
-                return ResponseEntity.badRequest().body("Code expiré !");
-            }
-
-            // Vérification du mot de passe et de sa confirmation
-            if (!code.getPassword().equals(code.getConfirmationPassword())) {
-                return ResponseEntity.badRequest().body("Le mot de passe et la confirmation ne correspondent pas !");
-            }
-
-            // Mise à jour du mot de passe utilisateur
-            Utilisateur utilisateur = utilisateurService.findUserByMail(code.getEmail());
-            if (utilisateur == null) {
-                return ResponseEntity.badRequest().body("Utilisateur introuvable pour cet email !");
-            }
-
-            utilisateur.setPassword(passwordEncoder.encode(code.getPassword()));
-            utilisateurService.save(utilisateur); // Assurez-vous d'avoir cette méthode dans votre service
-            return ResponseEntity.ok("Mot de passe mis à jour avec succès !");
-        }
-
-        return ResponseEntity.badRequest().body("Code invalide !");
     }
 
     @GetMapping("userList")
