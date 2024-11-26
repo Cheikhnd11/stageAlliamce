@@ -1,7 +1,7 @@
 package alliance.team.stage.enumeration;
 
 public enum TypeOfRole {
-    ADMIN,
-    USER,
-    GESTIONNAIRE
+    ROLE_ADMIN,
+    ROLE_USER,
+    ROLE_GESTIONNAIRE
 }

@@ -7,8 +7,10 @@ import alliance.team.stage.repository.ValidationRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.time.Instant;
 import java.util.Random;
+
 import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Service
@@ -30,10 +32,10 @@ public class ValidationService {
         String code = String.format("%06d", random.nextInt(999999));
         validationCompte.setCode(code);
         validationRepository.save(validationCompte);
-        notificationService.sendMail(validationCompte);
+        notificationService.sendNotification(validationCompte);
     }
 
-    public boolean activationCompte(String code,String mail, String password) {
+    public boolean activationCompte(String code,String mail, String password,String confirmePassword) {
         ValidationCompte validationCompte = validationRepository.findByUtilisateur_Email(mail);
         if (validationCompte == null) {
             throw new IllegalArgumentException("Utilisateur non trouvable");
@@ -44,6 +46,9 @@ public class ValidationService {
         if (validationCompte.getExpirationDate().isBefore(Instant.now())) {
             throw new IllegalArgumentException("Expiration date invalid");
         }
+        if (!password.equals(confirmePassword)) {
+            throw new IllegalArgumentException("Password incorrect");
+        }
         validationCompte.setActivationDate(Instant.now());
         validationRepository.save(validationCompte);
         Utilisateur utilisateur = validationCompte.getUtilisateur();
@@ -52,4 +57,5 @@ public class ValidationService {
         utilisateurRepository.save(utilisateur);
         return true;
     }
+
 }

@@ -13,8 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class JWTUtil {
-    @Value("${jwt.secret}")
-    private String SECRET_KEY;
+    private String SECRET_KEY="allianceFrancaise";
     private final long EXPIRATION_TIME = 3600000; // 1 heure (en millisecondes)
 
     public String generateToken(Utilisateur utilisateur) {
