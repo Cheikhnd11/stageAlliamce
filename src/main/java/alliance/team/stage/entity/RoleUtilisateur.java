@@ -18,4 +18,8 @@ public class RoleUtilisateur {
     private int id;
     @Enumerated(EnumType.STRING)
     private TypeOfRole libelle;
+
+    public RoleUtilisateur(String libelle) {
+        this.libelle = TypeOfRole.valueOf(libelle);
+    }
 }

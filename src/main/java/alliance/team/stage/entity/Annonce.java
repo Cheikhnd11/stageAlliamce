@@ -11,9 +11,13 @@ import lombok.*;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Role {
+@Data
+public class Annonce {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    private String titre;
+    private String description;
+    private String mediaPath; // Chemin ou URL du média
+    private String mediaType; // Type MIME (image/png, video/mp4, etc.)
 }

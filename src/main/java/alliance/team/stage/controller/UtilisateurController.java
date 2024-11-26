@@ -8,6 +8,7 @@ import alliance.team.stage.enumeration.TypeOfRole;
 import alliance.team.stage.service.RoleUtilisateurService;
 import alliance.team.stage.service.UtilisateurService;
 import alliance.team.stage.service.ValidationService;
+import alliance.team.stage.token.JWTUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -28,6 +28,7 @@ public class UtilisateurController {
     private final ValidationService validationService;
     private UtilisateurService utilisateurService;
     private AuthenticationManager authenticationManager;
+    private JWTUtil jwtUtil;
 
     @PostMapping(path = "inscription")
     public void inscription(@RequestBody Utilisateur utilisateur) {
@@ -41,7 +42,6 @@ public class UtilisateurController {
             utilisateurService.inscription(utilisateur);
         }catch (Exception e) {
             e.printStackTrace();
-
         }
     }
 
@@ -52,10 +52,10 @@ public class UtilisateurController {
     }
 
     @PostMapping("connexion")
-    public Map<String, String> connexion(@RequestBody AuthenticationDto authenticationDto) {
+    public String connexion(@RequestBody AuthenticationDto authenticationDto) {
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationDto.userName(), authenticationDto.password()));
         log.info("Resultat{}",authenticate.isAuthenticated());
-        return null;
+        Utilisateur user = (Utilisateur) utilisateurService.loadUserByUsername(authenticationDto.userName());
+        return jwtUtil.generateToken(user);
     }
-
 }

@@ -24,6 +24,5 @@ public class UtilisateurService implements UserDetailsService {
     public void inscription(Utilisateur utilisateur) {
         utilisateurRepository.save(utilisateur);
         validationService.saveValidation(utilisateur);
-
     }
 }

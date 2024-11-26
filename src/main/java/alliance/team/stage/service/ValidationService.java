@@ -30,7 +30,7 @@ public class ValidationService {
         String code = String.format("%06d", random.nextInt(999999));
         validationCompte.setCode(code);
         validationRepository.save(validationCompte);
-        notificationService.sendNotification(validationCompte);
+        notificationService.sendMail(validationCompte);
     }
 
     public boolean activationCompte(String code,String mail, String password) {
