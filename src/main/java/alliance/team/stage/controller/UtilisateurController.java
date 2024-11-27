@@ -5,8 +5,8 @@ import alliance.team.stage.entity.Activate;
 import alliance.team.stage.entity.Code;
 import alliance.team.stage.entity.RoleUtilisateur;
 import alliance.team.stage.entity.Utilisateur;
-import alliance.team.stage.repository.UtilisateurRepository;
 import alliance.team.stage.service.*;
+import alliance.team.stage.token.JWTUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,8 +16,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -30,12 +30,11 @@ import java.util.NoSuchElementException;
 public class UtilisateurController {
     private final RoleUtilisateurService roleUtilisateurService;
     private final ValidationService validationService;
-    private final UtilisateurRepository utilisateurRepository;
     private final NotificationService notificationService;
-    private final CodeService codeService;
     private UtilisateurService utilisateurService;
     private AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    private JWTUtil jwtUtil;
 
     @PostMapping(path = "inscription")
     public void inscription(@RequestBody Utilisateur utilisateur) {
@@ -67,71 +66,48 @@ public class UtilisateurController {
     }
 
     @PostMapping("connexion")
-    public ResponseEntity<Map<String, String>> connexion(@RequestBody AuthenticationDto authenticationDto) {
+    public Object connexion(@RequestBody AuthenticationDto authenticationDto) {
         try {
+            Authentication authenticate = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authenticationDto.email(), authenticationDto.password())
+            );
+            log.info("Utilisateur authentifié : {}", authenticate.isAuthenticated());
 
-            Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationDto.email(), authenticationDto.password()));
-            log.info("Utilisateur authentifie: {} ", authenticate.isAuthenticated());
-            Map<String, String> response = Map.of("Message:", "authentification OK",
-                    "Email:", authenticationDto.email());
-            return ResponseEntity.ok(response);
-        }catch (Exception e) {
+            // Charger directement l'utilisateur de la base de données
+            Utilisateur user = utilisateurService.findUtilisateurByEmail(authenticationDto.email());
+
+            // Générer un token JWT
+            return jwtUtil.generateToken(user);
+
+        } catch (Exception e) {
             log.error("Échec de l'authentification : {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("erreur", "Identifiants invalides"));
         }
     }
+
 
     @PostMapping(path = "passwordForgueted/{email}")
     public ResponseEntity<String> passwordForgueted(@PathVariable String email) {
         try {
             Utilisateur utilisateur = utilisateurService.findUserByMail(email);
             if (utilisateur == null) {
-                return ResponseEntity.notFound().build();
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
             }
             notificationService.sendNotificationForPassword(email);
         }catch (Exception e) {
             e.printStackTrace();
         }
-        return ResponseEntity.ok("Password OK");
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
 
     }
 
-    @PostMapping("initialisePassword")
+    @PutMapping("initialisePassword")
     public ResponseEntity<String> initialisePassword(@RequestBody Code code) {
-        // Récupération des codes associés à l'email
-        List<Code> codesInDb = codeService.findByEmail(code.getEmail());
-
-        if (codesInDb.isEmpty()) {
-            return ResponseEntity.badRequest().body("Aucun code associé à cet email !");
+        try {
+            return utilisateurService.initialisePassword(code);
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
         }
-        for (Code dbCode : codesInDb) {
-            // Vérification du libellé
-            if (!dbCode.getLibelle().equals(code.getLibelle())) {
-                continue; // Passe au code suivant si le libellé ne correspond pas
-            }
-
-            // Vérification de  l'expiration du code
-            if (dbCode.getDateExpiration().isBefore(Instant.now())) {
-                return ResponseEntity.badRequest().body("Code expiré !");
-            }
-
-            // Vérification du mot de passe et de sa confirmation
-            if (!code.getPassword().equals(code.getConfirmationPassword())) {
-                return ResponseEntity.badRequest().body("Le mot de passe et la confirmation ne correspondent pas !");
-            }
-
-            // Mise à jour du mot de passe utilisateur
-            Utilisateur utilisateur = utilisateurService.findUserByMail(code.getEmail());
-            if (utilisateur == null) {
-                return ResponseEntity.badRequest().body("Utilisateur introuvable pour cet email !");
-            }
-
-            utilisateur.setPassword(passwordEncoder.encode(code.getPassword()));
-            utilisateurService.save(utilisateur); // Assurez-vous d'avoir cette méthode dans votre service
-            return ResponseEntity.ok("Mot de passe mis à jour avec succès !");
-        }
-
-        return ResponseEntity.badRequest().body("Code invalide !");
     }
 
     @GetMapping("userList")

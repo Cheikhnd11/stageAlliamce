@@ -31,12 +31,11 @@ public class SecurityConfig {
                         .csrf(AbstractHttpConfigurer::disable)
                         .authorizeHttpRequests(
                                 authorize ->
-                                        authorize.requestMatchers(POST,"/api/user/inscription").hasRole("ADMIN")
-                                                .requestMatchers(DELETE,"/api/user/deleteUser/{mail}").hasRole("ADMIN")
-                                                .requestMatchers(POST,"/api/user/passwordForgueted/{email}").hasRole("ADMIN")
-                                                .requestMatchers(POST,"/api/user/activation").permitAll()
-                                                .requestMatchers(POST,"/api/user/connexion").permitAll()
-                                                .requestMatchers(GET,"/api/user/userList").permitAll()
+                                        authorize.requestMatchers(POST,"/inscription").hasRole("ADMIN")
+                                                .requestMatchers(DELETE,"/dalateUser/{mail}").hasRole("ADMIN")
+                                                .requestMatchers(POST,"/passwordForgueted/{email}").hasRole("ADMIN")
+                                                .requestMatchers(POST,"/activation").permitAll()
+                                                .requestMatchers(POST,"/connexion").permitAll()
                                                 .requestMatchers(POST,"initialisePassword").permitAll()
                                                 .anyRequest().authenticated()
                         )
@@ -75,8 +74,5 @@ public class SecurityConfig {
 
         return mailSender;
     }
-
-
-
 }
 
