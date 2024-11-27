@@ -32,8 +32,8 @@ public class SecurityConfig {
                         .authorizeHttpRequests(
                                 authorize ->
                                         authorize.requestMatchers(POST,"/inscription").hasRole("ADMIN")
-                                                .requestMatchers(DELETE,"/dalateUser/{mail}").hasRole("ADMIN")
-                                                .requestMatchers(POST,"/passwordForgueted/{email}").hasRole("ADMIN")
+                                                .requestMatchers(DELETE,"/deleteUser/{mail}").hasRole("ADMIN")
+                                                .requestMatchers(POST,"/passwordForgeted/{email}").hasRole("ADMIN")
                                                 .requestMatchers(POST,"/activation").permitAll()
                                                 .requestMatchers(POST,"/connexion").permitAll()
                                                 .requestMatchers(POST,"initialisePassword").permitAll()

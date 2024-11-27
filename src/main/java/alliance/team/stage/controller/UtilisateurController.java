@@ -86,8 +86,8 @@ public class UtilisateurController {
     }
 
 
-    @PostMapping(path = "passwordForgueted/{email}")
-    public ResponseEntity<String> passwordForgueted(@PathVariable String email) {
+    @PostMapping(path = "passwordForgeted/{email}")
+    public ResponseEntity<String> passwordForgeted(@PathVariable String email) {
         try {
             Utilisateur utilisateur = utilisateurService.findUserByMail(email);
             if (utilisateur == null) {
@@ -118,7 +118,7 @@ public class UtilisateurController {
     }
 
     @DeleteMapping(path = "deleteUser/{mail}")
-    public ResponseEntity<String> dalateUser(@PathVariable String mail) {
+    public ResponseEntity<String> deleteUser(@PathVariable String mail) {
         try {
             Utilisateur ut = utilisateurService.findUserByMail(mail);
             utilisateurService.deleteUser(ut);
