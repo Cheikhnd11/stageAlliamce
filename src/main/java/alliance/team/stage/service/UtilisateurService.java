@@ -54,7 +54,7 @@ public class UtilisateurService implements UserDetailsService {
     public List<Utilisateur> userList() {return utilisateurRepository.findAll();}
 
     @Transactional
-    public void delateUser(Utilisateur utilisateur) {
+    public void deleteUser(Utilisateur utilisateur) {
         validationRepository.delete((int) utilisateur.getId());
         utilisateurRepository.delete(utilisateur);}
 

@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>alliance.team</groupId>
-	<artifactId>stage</artifactId>
+	<artifactId>intranet_backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>stage</name>
 	<description>Creation d&apos;un intranet pour assurer une communication efficace d&apos;une organisation</description>
@@ -67,6 +67,12 @@
 			<artifactId>mysql-connector-j</artifactId>
 			<scope>runtime</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.mariadb.jdbc</groupId>
+			<artifactId>mariadb-java-client</artifactId>
+
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>

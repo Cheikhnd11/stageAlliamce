@@ -22,9 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
 @RestController
-@RequestMapping
+@RequestMapping("/user")
 @AllArgsConstructor
 public class UtilisateurController {
     private final RoleUtilisateurService roleUtilisateurService;
@@ -140,11 +141,11 @@ public class UtilisateurController {
         return ResponseEntity.ok(utilisateurs);
     }
 
-    @DeleteMapping(path = "dalateUser/{mail}")
+    @DeleteMapping(path = "deleteUser/{mail}")
     public ResponseEntity<String> dalateUser(@PathVariable String mail) {
         try {
             Utilisateur ut = utilisateurService.findUserByMail(mail);
-            utilisateurService.delateUser(ut);
+            utilisateurService.deleteUser(ut);
             return ResponseEntity.ok("Suppression reussie !");
         }catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
