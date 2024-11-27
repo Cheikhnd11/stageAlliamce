@@ -5,8 +5,8 @@ import alliance.team.stage.entity.Activate;
 import alliance.team.stage.entity.Code;
 import alliance.team.stage.entity.RoleUtilisateur;
 import alliance.team.stage.entity.Utilisateur;
-import alliance.team.stage.repository.UtilisateurRepository;
 import alliance.team.stage.service.*;
+import alliance.team.stage.token.JWTUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -34,6 +33,7 @@ public class UtilisateurController {
     private UtilisateurService utilisateurService;
     private AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    private JWTUtil jwtUtil;
 
     @PostMapping(path = "inscription")
     public void inscription(@RequestBody Utilisateur utilisateur) {
@@ -65,19 +65,25 @@ public class UtilisateurController {
     }
 
     @PostMapping("connexion")
-    public ResponseEntity<Map<String, String>> connexion(@RequestBody AuthenticationDto authenticationDto) {
+    public Object connexion(@RequestBody AuthenticationDto authenticationDto) {
         try {
+            Authentication authenticate = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authenticationDto.email(), authenticationDto.password())
+            );
+            log.info("Utilisateur authentifié : {}", authenticate.isAuthenticated());
 
-            Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationDto.email(), authenticationDto.password()));
-            log.info("Utilisateur authentifie: {} ", authenticate.isAuthenticated());
-            Map<String, String> response = Map.of("Message:", "authentification OK",
-                    "Email:", authenticationDto.email());
-            return ResponseEntity.ok(response);
-        }catch (Exception e) {
+            // Charger directement l'utilisateur de la base de données
+            Utilisateur user = utilisateurService.findUtilisateurByEmail(authenticationDto.email());
+
+            // Générer un token JWT
+            return jwtUtil.generateToken(user);
+
+        } catch (Exception e) {
             log.error("Échec de l'authentification : {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("erreur", "Identifiants invalides"));
         }
     }
+
 
     @PostMapping(path = "passwordForgueted/{email}")
     public ResponseEntity<String> passwordForgueted(@PathVariable String email) {

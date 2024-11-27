@@ -15,8 +15,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -47,6 +45,12 @@ public class UtilisateurService implements UserDetailsService {
                 authorities
         );
     }
+
+    public Utilisateur findUtilisateurByEmail(String email) {
+        return utilisateurRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable avec l'email : " + email));
+    }
+
 
     private  ValidationService validationService;
     private UtilisateurRepository utilisateurRepository;
