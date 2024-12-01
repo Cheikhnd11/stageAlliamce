@@ -75,6 +75,9 @@ public class UtilisateurService implements UserDetailsService {
 
     public void save(Utilisateur userToUpdate) {utilisateurRepository.save(userToUpdate);
     }
+    public Long nbrUtilisateur(){
+        return utilisateurRepository.count();
+    }
 
     public ResponseEntity<String> initialisePassword(Code code) {
         // Récupération des codes associés à l'email

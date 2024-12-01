@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -30,7 +31,7 @@ public class JWTUtil {
                     .claim("prenom", utilisateur.getPrenom())
                     .claim("username", utilisateur.getUsername())
                     .claim("email", utilisateur.getEmail())
-                    .claim("roles", utilisateur.getRoles().stream()
+                    .claim("role", utilisateur.getRoles().stream()
                             .map(RoleUtilisateur::getLibelle)
                             .collect(Collectors.toList()))
                     .setIssuedAt(new Date())
@@ -41,6 +42,18 @@ public class JWTUtil {
             throw new RuntimeException("Erreur lors de la génération du token : Clé secrète invalide", e);
         }
     }
+    public Claims extractClaims(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(SECRET_KEY)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            throw new RuntimeException("Erreur lors de l'extraction des claims : Token invalide ou expiré", e);
+        }
+    }
+
 
     public boolean validateToken(String token) {
         try {

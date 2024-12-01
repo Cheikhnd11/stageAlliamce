@@ -1,5 +1,7 @@
 package alliance.team.stage.security;
 
+import alliance.team.stage.token.JWTUtil;
+import alliance.team.stage.token.JWTUtilFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -15,6 +17,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.util.Properties;
 
@@ -31,24 +34,28 @@ public class SecurityConfig {
                         .csrf(AbstractHttpConfigurer::disable)
                         .authorizeHttpRequests(
                                 authorize ->
-                                        authorize.requestMatchers(POST,"/inscription").hasRole("ADMIN")
-                                                .requestMatchers(DELETE,"/deleteUser/{mail}").hasRole("ADMIN")
-                                                .requestMatchers(POST,"/passwordForgeted/{email}").hasRole("ADMIN")
-                                                .requestMatchers(POST,"/activation").permitAll()
-                                                .requestMatchers(POST,"/connexion").permitAll()
-                                                .requestMatchers(POST,"initialisePassword").permitAll()
+                                        authorize.requestMatchers(POST, "/user/inscription").hasRole("ADMIN")
+                                                .requestMatchers(DELETE, "/user/deleteUser/{mail}").hasRole("ADMIN")
+                                                .requestMatchers(POST, "/user/passwordForgeted/{email}").hasRole("ADMIN")
+                                                .requestMatchers(POST, "/user/activation").permitAll()
+                                                .requestMatchers(POST, "/user/connexion").permitAll()
+                                                .requestMatchers(POST, "/user/initialisePassword").permitAll()
                                                 .anyRequest().authenticated()
                         )
+                        .addFilterBefore(new JWTUtilFilter(jwtUtil()), UsernamePasswordAuthenticationFilter.class) // Ajout du filtre
                         .httpBasic(Customizer.withDefaults())
                         .build();
     }
 
     @Bean
-    public BCryptPasswordEncoder passwordEncoder() {return new BCryptPasswordEncoder();}
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager(); }
+        return authenticationConfiguration.getAuthenticationManager();
+    }
 
     @Bean
     public AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
@@ -56,6 +63,11 @@ public class SecurityConfig {
         authenticationProvider.setUserDetailsService(userDetailsService);
         authenticationProvider.setPasswordEncoder(this.passwordEncoder());
         return authenticationProvider;
+    }
+
+    @Bean
+    public JWTUtil jwtUtil() {
+        return new JWTUtil();
     }
 
     @Bean
@@ -75,4 +87,3 @@ public class SecurityConfig {
         return mailSender;
     }
 }
-

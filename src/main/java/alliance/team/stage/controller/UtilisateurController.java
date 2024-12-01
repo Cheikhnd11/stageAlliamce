@@ -58,6 +58,10 @@ public class UtilisateurController {
 
         }
     }
+    @GetMapping(path = "/nbrUtilisateur")
+    public ResponseEntity<Long> nbrUtilisateur(){
+        return new ResponseEntity<>(utilisateurService.nbrUtilisateur(), HttpStatus.OK);
+    }
 
     @PostMapping("activation")
     private ResponseEntity<String> activation(@RequestBody Activate activate) {
@@ -68,15 +72,19 @@ public class UtilisateurController {
     @PostMapping("connexion")
     public Object connexion(@RequestBody AuthenticationDto authenticationDto) {
         try {
+            log.info("Tentative de connexion pour : {}", authenticationDto.email());
+
+            // Vérifier si l'utilisateur existe
+            Utilisateur user = utilisateurService.findUtilisateurByEmail(authenticationDto.email());
+            log.info("Utilisateur trouvé : {}", user != null ? user.getEmail() : "Aucun utilisateur trouvé");
+
+            // Authentification via AuthenticationManager
             Authentication authenticate = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticationDto.email(), authenticationDto.password())
             );
             log.info("Utilisateur authentifié : {}", authenticate.isAuthenticated());
 
-            // Charger directement l'utilisateur de la base de données
-            Utilisateur user = utilisateurService.findUtilisateurByEmail(authenticationDto.email());
-
-            // Générer un token JWT
+            // Générer un token JWT si authentification réussie
             return jwtUtil.generateToken(user);
 
         } catch (Exception e) {
@@ -84,6 +92,7 @@ public class UtilisateurController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("erreur", "Identifiants invalides"));
         }
     }
+
 
 
     @PostMapping(path = "passwordForgeted/{email}")
