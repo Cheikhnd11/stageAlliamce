@@ -22,9 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
 @RestController
-@RequestMapping
+@RequestMapping("/user")
 @AllArgsConstructor
 public class UtilisateurController {
     private final RoleUtilisateurService roleUtilisateurService;
@@ -57,6 +58,10 @@ public class UtilisateurController {
 
         }
     }
+    @GetMapping(path = "/nbrUtilisateur")
+    public ResponseEntity<Long> nbrUtilisateur(){
+        return new ResponseEntity<>(utilisateurService.nbrUtilisateur(), HttpStatus.OK);
+    }
 
     @PostMapping("activation")
     private ResponseEntity<String> activation(@RequestBody Activate activate) {
@@ -67,15 +72,19 @@ public class UtilisateurController {
     @PostMapping("connexion")
     public Object connexion(@RequestBody AuthenticationDto authenticationDto) {
         try {
+            log.info("Tentative de connexion pour : {}", authenticationDto.email());
+
+            // Vérifier si l'utilisateur existe
+            Utilisateur user = utilisateurService.findUtilisateurByEmail(authenticationDto.email());
+            log.info("Utilisateur trouvé : {}", user != null ? user.getEmail() : "Aucun utilisateur trouvé");
+
+            // Authentification via AuthenticationManager
             Authentication authenticate = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticationDto.email(), authenticationDto.password())
             );
             log.info("Utilisateur authentifié : {}", authenticate.isAuthenticated());
 
-            // Charger directement l'utilisateur de la base de données
-            Utilisateur user = utilisateurService.findUtilisateurByEmail(authenticationDto.email());
-
-            // Générer un token JWT
+            // Générer un token JWT si authentification réussie
             return jwtUtil.generateToken(user);
 
         } catch (Exception e) {
@@ -85,8 +94,9 @@ public class UtilisateurController {
     }
 
 
-    @PostMapping(path = "passwordForgueted/{email}")
-    public ResponseEntity<String> passwordForgueted(@PathVariable String email) {
+
+    @PostMapping(path = "passwordForgeted/{email}")
+    public ResponseEntity<String> passwordForgeted(@PathVariable String email) {
         try {
             Utilisateur utilisateur = utilisateurService.findUserByMail(email);
             if (utilisateur == null) {
@@ -116,11 +126,11 @@ public class UtilisateurController {
         return ResponseEntity.ok(utilisateurs);
     }
 
-    @DeleteMapping(path = "dalateUser/{mail}")
-    public ResponseEntity<String> dalateUser(@PathVariable String mail) {
+    @DeleteMapping(path = "deleteUser/{mail}")
+    public ResponseEntity<String> deleteUser(@PathVariable String mail) {
         try {
             Utilisateur ut = utilisateurService.findUserByMail(mail);
-            utilisateurService.delateUser(ut);
+            utilisateurService.deleteUser(ut);
             return ResponseEntity.ok("Suppression reussie !");
         }catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

@@ -67,13 +67,16 @@ public class UtilisateurService implements UserDetailsService {
     public List<Utilisateur> userList() {return utilisateurRepository.findAll();}
 
     @Transactional
-    public void delateUser(Utilisateur utilisateur) {
+    public void deleteUser(Utilisateur utilisateur) {
         validationRepository.delete((int) utilisateur.getId());
         utilisateurRepository.delete(utilisateur);}
 
     public Utilisateur findById(long id) {return utilisateurRepository.findById(id).get();}
 
     public void save(Utilisateur userToUpdate) {utilisateurRepository.save(userToUpdate);
+    }
+    public Long nbrUtilisateur(){
+        return utilisateurRepository.count();
     }
 
     public ResponseEntity<String> initialisePassword(Code code) {
