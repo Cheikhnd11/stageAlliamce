@@ -60,7 +60,8 @@ public class UtilisateurService implements UserDetailsService {
 
     }
 
-    public Utilisateur findUserByMail(String mail) {return utilisateurRepository.findByEmail(mail)
+    public Utilisateur findUserByMail(String mail) {
+        return utilisateurRepository.findByEmail(mail)
             .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouve pour l'email: "+mail));
     }
 
@@ -69,12 +70,15 @@ public class UtilisateurService implements UserDetailsService {
     @Transactional
     public void deleteUser(Utilisateur utilisateur) {
         validationRepository.delete((int) utilisateur.getId());
-        utilisateurRepository.delete(utilisateur);}
+        utilisateurRepository.delete(utilisateur);
+    }
 
     public Utilisateur findById(long id) {return utilisateurRepository.findById(id).get();}
 
-    public void save(Utilisateur userToUpdate) {utilisateurRepository.save(userToUpdate);
+    public void save(Utilisateur userToUpdate) {
+        utilisateurRepository.save(userToUpdate);
     }
+
     public Long nbrUtilisateur(){
         return utilisateurRepository.count();
     }

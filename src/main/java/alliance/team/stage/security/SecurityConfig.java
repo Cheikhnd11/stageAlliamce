@@ -40,6 +40,7 @@ public class SecurityConfig {
                                                 .requestMatchers(POST, "/user/activation").permitAll()
                                                 .requestMatchers(POST, "/user/connexion").permitAll()
                                                 .requestMatchers(POST, "/user/initialisePassword").permitAll()
+                                                .requestMatchers(POST, "/annonces/ajoutAnnonce").hasRole("ADMIN")
                                                 .anyRequest().authenticated()
                         )
                         .addFilterBefore(new JWTUtilFilter(jwtUtil()), UsernamePasswordAuthenticationFilter.class) // Ajout du filtre
@@ -75,13 +76,14 @@ public class SecurityConfig {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
-        mailSender.setUsername("cn7061611@gmail.com");
-        mailSender.setPassword("gezi qied xwkv nwls");
+        mailSender.setUsername("mouhasinap15@gmail.com");
+        mailSender.setPassword("rchw kvcx sqnx humz");
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
+        props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
         props.put("mail.debug", "true");
 
         return mailSender;
