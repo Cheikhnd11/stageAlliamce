@@ -2,23 +2,19 @@ package alliance.team.stage.token;
 
 import alliance.team.stage.entity.RoleUtilisateur;
 import alliance.team.stage.entity.Utilisateur;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.stream.Collectors;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.InvalidKeyException;
 import org.springframework.stereotype.Component;
-
 import javax.crypto.SecretKey;
 
 @Component
 public class JWTUtil {
-
     // Une clé générée avec une taille appropriée (256 bits)
     private final SecretKey SECRET_KEY = Keys.hmacShaKeyFor("allianceFrancaiseDeZiguinchorSenegalLongueCléSécurisée".getBytes(StandardCharsets.UTF_8));
     private final long EXPIRATION_TIME = 3600000; // 1 heure (en millisecondes)
@@ -42,6 +38,7 @@ public class JWTUtil {
             throw new RuntimeException("Erreur lors de la génération du token : Clé secrète invalide", e);
         }
     }
+
     public Claims extractClaims(String token) {
         try {
             return Jwts.parserBuilder()
@@ -53,7 +50,6 @@ public class JWTUtil {
             throw new RuntimeException("Erreur lors de l'extraction des claims : Token invalide ou expiré", e);
         }
     }
-
 
     public boolean validateToken(String token) {
         try {

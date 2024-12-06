@@ -5,6 +5,7 @@ import alliance.team.stage.entity.Notification;
 import alliance.team.stage.entity.Utilisateur;
 import alliance.team.stage.repository.AnnonceRepository;
 import alliance.team.stage.repository.NotificationRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -13,12 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 
 @Service
+@AllArgsConstructor
 public class AnnonceService {
-    private String baseUploadDir = "C:" + File.separator + "uploads";
-    @Autowired
     private AnnonceRepository annonceRepository;
     private NotificationRepository notificationRepository;
-    @Autowired
     private UtilisateurService utilisateurService;
 
     public List<Annonce> getAllAnnonces() {
@@ -38,6 +37,7 @@ public class AnnonceService {
     }
 
     public String saveMedia(MultipartFile file) throws Exception {
+        String baseUploadDir = "C:" + File.separator + "uploads";
         // Création du sous-dossier si nécessaire
         File directory = new File(baseUploadDir);
         if (!directory.exists()) {

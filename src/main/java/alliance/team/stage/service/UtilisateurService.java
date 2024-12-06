@@ -25,10 +25,11 @@ import java.util.stream.Collectors;
 @Transactional
 @AllArgsConstructor
 public class UtilisateurService implements UserDetailsService {
-
     private final ValidationRepository validationRepository;
     private final CodeRepository codeRepository;
     private final PasswordEncoder passwordEncoder;
+    private  ValidationService validationService;
+    private UtilisateurRepository utilisateurRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -51,9 +52,6 @@ public class UtilisateurService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable avec l'email : " + email));
     }
 
-
-    private  ValidationService validationService;
-    private UtilisateurRepository utilisateurRepository;
     public void inscription(Utilisateur utilisateur) {
         utilisateurRepository.save(utilisateur);
         validationService.saveValidation(utilisateur);
@@ -65,7 +63,9 @@ public class UtilisateurService implements UserDetailsService {
             .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouve pour l'email: "+mail));
     }
 
-    public List<Utilisateur> userList() {return utilisateurRepository.findAll();}
+    public List<Utilisateur> userList() {
+        return utilisateurRepository.findAll();
+    }
 
     @Transactional
     public void deleteUser(Utilisateur utilisateur) {

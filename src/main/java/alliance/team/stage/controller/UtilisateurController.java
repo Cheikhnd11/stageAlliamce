@@ -51,11 +51,9 @@ public class UtilisateurController {
                     roleUtilisateurService.persisteRoleUtilisateur(role);
                 }
             }
-
             utilisateurService.inscription(utilisateur);
         }catch (Exception e) {
             e.printStackTrace();
-
         }
     }
     @GetMapping(path = "/nbrUtilisateur")
@@ -73,27 +71,21 @@ public class UtilisateurController {
     public Object connexion(@RequestBody AuthenticationDto authenticationDto) {
         try {
             log.info("Tentative de connexion pour : {}", authenticationDto.email());
-
             // Vérifier si l'utilisateur existe
             Utilisateur user = utilisateurService.findUtilisateurByEmail(authenticationDto.email());
             log.info("Utilisateur trouvé : {}", user != null ? user.getEmail() : "Aucun utilisateur trouvé");
-
             // Authentification via AuthenticationManager
             Authentication authenticate = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticationDto.email(), authenticationDto.password())
             );
             log.info("Utilisateur authentifié : {}", authenticate.isAuthenticated());
-
             // Générer un token JWT si authentification réussie
             return jwtUtil.generateToken(user);
-
         } catch (Exception e) {
             log.error("Échec de l'authentification : {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("erreur", "Identifiants invalides"));
         }
     }
-
-
 
     @PostMapping(path = "passwordForgeted/{email}")
     public ResponseEntity<String> passwordForgeted(@PathVariable String email) {
@@ -107,7 +99,6 @@ public class UtilisateurController {
             e.printStackTrace();
         }
         throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-
     }
 
     @PutMapping("initialisePassword")
