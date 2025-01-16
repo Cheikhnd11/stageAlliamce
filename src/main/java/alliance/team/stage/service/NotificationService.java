@@ -2,7 +2,6 @@ package alliance.team.stage.service;
 
 import alliance.team.stage.entity.*;
 import alliance.team.stage.repository.CodeRepository;
-import alliance.team.stage.repository.NotificationRepository;
 import alliance.team.stage.repository.UtilisateurRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
@@ -16,7 +15,6 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 @Service
 @AllArgsConstructor
 public class NotificationService {
-    private final NotificationRepository notificationRepository;
     private final JavaMailSender javaMailSender;
     private final UtilisateurRepository utilisateurRepository;
     private final CodeRepository codeRepository;
@@ -58,13 +56,6 @@ public class NotificationService {
     public void sendAnnonce(Annonce annonce) {
         List<Utilisateur> utilisateurs = utilisateurRepository.findAll();
         for (Utilisateur utilisateur : utilisateurs) {
-            Notification notification = new Notification();
-            notification.setAnnonce(annonce);
-            notification.setUtilisateur(utilisateur);
-            notification.setIsRead(false);
-
-            notificationRepository.save(notification);
-
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom("mouhasinap15@gmail.com");
             message.setTo(utilisateur.getEmail());

@@ -1,12 +1,9 @@
 package alliance.team.stage.service;
 
 import alliance.team.stage.entity.Annonce;
-import alliance.team.stage.entity.Notification;
 import alliance.team.stage.entity.Utilisateur;
 import alliance.team.stage.repository.AnnonceRepository;
-import alliance.team.stage.repository.NotificationRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
