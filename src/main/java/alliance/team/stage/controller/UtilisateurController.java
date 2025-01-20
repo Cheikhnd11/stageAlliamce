@@ -1,10 +1,8 @@
 package alliance.team.stage.controller;
 
 import alliance.team.stage.dto.AuthenticationDto;
-import alliance.team.stage.entity.Activate;
-import alliance.team.stage.entity.Code;
-import alliance.team.stage.entity.RoleUtilisateur;
-import alliance.team.stage.entity.Utilisateur;
+import alliance.team.stage.dto.UtilisateurDto;
+import alliance.team.stage.entity.*;
 import alliance.team.stage.service.*;
 import alliance.team.stage.token.JWTUtil;
 import lombok.AllArgsConstructor;
@@ -21,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
@@ -37,10 +36,14 @@ public class UtilisateurController {
     private JWTUtil jwtUtil;
 
     @PostMapping(path = "inscription")
-    public void inscription(@RequestBody Utilisateur utilisateur) {
+    public void inscription(@RequestBody UtilisateurDto utilisateurDto) {
         try {
-            List<RoleUtilisateur> roleUtilisateur = utilisateur.getRoles();
-            for (RoleUtilisateur role : roleUtilisateur) {
+
+            if (utilisateurDto.getRoleIds() == null || utilisateurDto.getRoleIds().isEmpty()) {
+                throw new IllegalArgumentException("La liste des rolesIds ne peut pas être nulle ou vide.");
+            }
+            List<RoleUtilisateur> roleUtilisateurList = roleUtilisateurService.findAllById(utilisateurDto.getRoleIds());
+            for (RoleUtilisateur role : roleUtilisateurList) {
                 try {
                     RoleUtilisateur existingRole = roleUtilisateurService.findById(role.getId());
                     if (existingRole == null) {
@@ -51,6 +54,12 @@ public class UtilisateurController {
                     roleUtilisateurService.persisteRoleUtilisateur(role);
                 }
             }
+            Utilisateur utilisateur=new Utilisateur();
+            utilisateur.setPrenom(utilisateurDto.getPrenom());
+            utilisateur.setNom(utilisateurDto.getNom());
+            utilisateur.setEmail(utilisateurDto.getEmail());
+            utilisateur.setUsername(utilisateurDto.getUsername());
+            utilisateur.setRoles(roleUtilisateurList);
 
             utilisateurService.inscription(utilisateur);
         }catch (Exception e) {
@@ -58,6 +67,66 @@ public class UtilisateurController {
 
         }
     }
+
+    @GetMapping(path = "/verify")
+    public ResponseEntity<String> verifyUtilisateur(@RequestParam("token") String token) {
+        Optional<Utilisateur> utilisateurOptional = utilisateurService.getUtilisateurByVerificationToken(token);
+        System.out.println("Token reçu : " + token);
+        if (utilisateurOptional.isPresent()) {
+            Utilisateur utilisateur = utilisateurOptional.get();
+
+            if (!utilisateur.isVerified()) {
+                utilisateur.setVerified(true);
+                utilisateurService.save(utilisateur);
+
+                return new ResponseEntity<>(
+                        "Compte vérifié avec succès ! Vous pouvez maintenant définir un mot de passe en visitant le formulaire de réinitialisation.",
+                        HttpStatus.OK
+                );
+            } else {
+                return new ResponseEntity<>(
+                        "Le compte a déjà été vérifié.",
+                        HttpStatus.BAD_REQUEST
+                );
+            }
+        } else {
+            return new ResponseEntity<>(
+                    "Lien de vérification invalide ou expiré.",
+                    HttpStatus.BAD_REQUEST
+            );
+        }
+    }
+
+
+    @PostMapping(path = "/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {
+        String token = resetPasswordRequest.getToken();
+        String newPassword = resetPasswordRequest.getNewPassword();
+
+        Optional<Utilisateur> utilisateurOptional = utilisateurService.getUtilisateurByVerificationToken(token);
+        if (utilisateurOptional.isPresent()) {
+            Utilisateur utilisateur = utilisateurOptional.get();
+
+            // Vérifier si le token est expiré
+            if (utilisateur.isTokenExpired()) {
+                return new ResponseEntity<>("Token expiré.", HttpStatus.BAD_REQUEST);
+            }
+
+            // Vérifier si l'utilisateur est vérifié
+            if (!utilisateur.isVerified()) {
+                return new ResponseEntity<>("Le compte n'est pas vérifié.", HttpStatus.BAD_REQUEST);
+            }
+
+            // Réinitialiser le mot de passe
+            utilisateur.setPassword(passwordEncoder.encode(newPassword));
+            utilisateurService.save(utilisateur);
+            return new ResponseEntity<>("Mot de passe réinitialisé avec succès !", HttpStatus.OK);
+        }
+
+        // Si aucun utilisateur n'est trouvé avec le token donné
+        return new ResponseEntity<>("Token de réinitialisation invalide.", HttpStatus.BAD_REQUEST);
+    }
+
     @GetMapping(path = "/nbrUtilisateur")
     public ResponseEntity<Long> nbrUtilisateur(){
         return new ResponseEntity<>(utilisateurService.nbrUtilisateur(), HttpStatus.OK);
@@ -76,6 +145,9 @@ public class UtilisateurController {
 
             // Vérifier si l'utilisateur existe
             Utilisateur user = utilisateurService.findUtilisateurByEmail(authenticationDto.email());
+
+            user.setActive(true);
+            utilisateurService.save(user);
             log.info("Utilisateur trouvé : {}", user != null ? user.getEmail() : "Aucun utilisateur trouvé");
 
             // Authentification via AuthenticationManager
@@ -84,6 +156,7 @@ public class UtilisateurController {
             );
             log.info("Utilisateur authentifié : {}", authenticate.isAuthenticated());
 
+
             // Générer un token JWT si authentification réussie
             return jwtUtil.generateToken(user);
 
@@ -91,7 +164,26 @@ public class UtilisateurController {
             log.error("Échec de l'authentification : {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("erreur", "Identifiants invalides"));
         }
+
     }
+
+    @PostMapping("deactivate")
+    public ResponseEntity<String> deactivateUser(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        try {
+            Utilisateur user = utilisateurService.findUtilisateurByEmail(email);
+            if (user != null) {
+                user.setActive(false);
+                utilisateurService.save(user);
+                return ResponseEntity.ok("Utilisateur désactivé avec succès.");
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Utilisateur introuvable.");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors de la désactivation.");
+        }
+    }
+
 
 
 
@@ -110,6 +202,15 @@ public class UtilisateurController {
 
     }
 
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<Utilisateur> updateUtilisateur(@RequestBody Utilisateur utilisateur, @PathVariable Long id) {
+        Utilisateur updatedUtilisateur = utilisateurService.updateUtilisateur(utilisateur, id);
+        if (updatedUtilisateur == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(updatedUtilisateur, HttpStatus.OK);
+    }
+
     @PutMapping("initialisePassword")
     public ResponseEntity<String> initialisePassword(@RequestBody Code code) {
         try {
@@ -126,11 +227,11 @@ public class UtilisateurController {
         return ResponseEntity.ok(utilisateurs);
     }
 
-    @DeleteMapping(path = "deleteUser/{mail}")
-    public ResponseEntity<String> deleteUser(@PathVariable String mail) {
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         try {
-            Utilisateur ut = utilisateurService.findUserByMail(mail);
-            utilisateurService.deleteUser(ut);
+
+            utilisateurService.deleteUser(id);
             return ResponseEntity.ok("Suppression reussie !");
         }catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

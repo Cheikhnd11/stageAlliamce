@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -27,6 +28,16 @@ public class Utilisateur implements UserDetails {
     @ManyToMany
     private List<RoleUtilisateur> roles;
     private boolean active = false;
+
+    public boolean verified;
+
+    private String verificationToken;
+
+    private LocalDateTime expirationDate;
+
+    public boolean isTokenExpired() {
+        return expirationDate != null &&LocalDateTime.now().isAfter(expirationDate);
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

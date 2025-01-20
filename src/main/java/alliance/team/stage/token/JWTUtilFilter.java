@@ -35,8 +35,9 @@ public class JWTUtilFilter extends OncePerRequestFilter {
 
             if (username != null && roles != null) {
                 var authorities = roles.stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
+                        .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
+
 
                 var authentication = new UsernamePasswordAuthenticationToken(
                         username, null, authorities);
