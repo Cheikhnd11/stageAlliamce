@@ -9,9 +9,11 @@ import java.util.List;
 @Service
 public class CodeService {
     private final CodeRepository codeRepository;
+
     public CodeService(CodeRepository codeRepository) {
         this.codeRepository = codeRepository;
     }
+
     public List<Code> findByEmail(String email) {
         return codeRepository.findByEmail(email);
     }

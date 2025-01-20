@@ -37,11 +37,8 @@ public class SecurityConfig {
                                         authorize.requestMatchers(POST, "/user/inscription").hasRole("ADMIN")
                                                 .requestMatchers(DELETE, "/user/deleteUser/{mail}").hasRole("ADMIN")
                                                 .requestMatchers(POST, "/user/passwordForgeted/{email}").hasRole("ADMIN")
-                                                .requestMatchers(GET, "/user/verify").permitAll()
-                                                .requestMatchers(POST,"/user/reset-password").permitAll()
                                                 .requestMatchers(POST, "/user/activation").permitAll()
                                                 .requestMatchers(POST, "/user/connexion").permitAll()
-                                                .requestMatchers(POST, "/user/deactivate").permitAll()
                                                 .requestMatchers(POST, "/user/initialisePassword").permitAll()
                                                 .anyRequest().authenticated()
                         )
@@ -78,8 +75,8 @@ public class SecurityConfig {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
         mailSender.setHost("smtp.gmail.com");
         mailSender.setPort(587);
-        mailSender.setUsername("amzaprod@gmail.com");
-        mailSender.setPassword("wlcd swpt rqdi wffz");
+        mailSender.setUsername("cn7061611@gmail.com");
+        mailSender.setPassword("gezi qied xwkv nwls");
 
         Properties props = mailSender.getJavaMailProperties();
         props.put("mail.transport.protocol", "smtp");

@@ -1,4 +1,3 @@
 package alliance.team.stage.dto;
 
-public record AuthenticationDto(String email, String password) {
-}
+public record AuthenticationDto(String email, String password) {}
