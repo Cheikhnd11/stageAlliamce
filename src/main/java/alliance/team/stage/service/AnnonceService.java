@@ -14,7 +14,7 @@ import java.io.File;
 @AllArgsConstructor
 public class AnnonceService {
     private AnnonceRepository annonceRepository;
-    private NotificationRepository notificationRepository;
+    //    private NotificationRepository notificationRepository;
     private UtilisateurService utilisateurService;
 
     public List<Annonce> getAllAnnonces() {
@@ -49,13 +49,13 @@ public class AnnonceService {
         return filePath; // Retourne le chemin complet du fichier
     }
 
-    public List<Annonce> getAllAnnoncesForUser(Long userid) {
-        Utilisateur user = utilisateurService.findById(userid);
-        List<Notification> notifications = notificationRepository.findByUtilisateur(user);
-        List<Annonce> annonces = new java.util.ArrayList<>();
-        for (Notification notification : notifications) {
-            annonces.add(notification.getAnnonce());
-        }
-        return annonces;
-    }
+//    public List<Annonce> getAllAnnoncesForUser(Long userid) {
+//        Utilisateur user = utilisateurService.findById(userid);
+//        List<Notification> notifications = notificationRepository.findByUtilisateur(user);
+//        List<Annonce> annonces = new java.util.ArrayList<>();
+//        for (Notification notification : notifications) {
+//            annonces.add(notification.getAnnonce());
+//        }
+//        return annonces;
+//    }
 }

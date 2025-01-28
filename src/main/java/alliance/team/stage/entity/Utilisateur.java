@@ -24,6 +24,8 @@ public class Utilisateur implements UserDetails {
     private String email;
     private String username;
     private String password;
+    private String mediaPath;
+    private String mediaType;
     @ManyToMany
     private List<RoleUtilisateur> roles;
     private boolean active = false;

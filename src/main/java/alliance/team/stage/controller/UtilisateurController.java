@@ -1,10 +1,9 @@
 package alliance.team.stage.controller;
 
 import alliance.team.stage.dto.AuthenticationDto;
-import alliance.team.stage.entity.Activate;
-import alliance.team.stage.entity.Code;
-import alliance.team.stage.entity.RoleUtilisateur;
-import alliance.team.stage.entity.Utilisateur;
+import alliance.team.stage.entity.*;
+import alliance.team.stage.repository.ConnexionRepository;
+import alliance.team.stage.repository.UtilisateurRepository;
 import alliance.team.stage.service.*;
 import alliance.team.stage.token.JWTUtil;
 import lombok.AllArgsConstructor;
@@ -16,11 +15,20 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
@@ -31,6 +39,8 @@ public class UtilisateurController {
     private final RoleUtilisateurService roleUtilisateurService;
     private final ValidationService validationService;
     private final NotificationService notificationService;
+    private final ConnexionRepository connexionRepository;
+    private final UtilisateurRepository utilisateurRepository;
     private UtilisateurService utilisateurService;
     private AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
@@ -58,6 +68,41 @@ public class UtilisateurController {
 
         }
     }
+
+    @PostMapping("/uploadProfil")
+    public ResponseEntity<String> uploadProfil(@RequestParam("file") MultipartFile file,
+                                               @RequestHeader("Authorization") String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        try {
+            String token = authorizationHeader.substring(7);
+            String userMail = jwtUtil.extractEmailFromToken(token);
+
+            Utilisateur user = utilisateurService.findUserByMail(userMail);
+
+            String extension = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf("."));
+            String newFileName = "annonce_" + UUID.randomUUID().toString().replace("-", "") + extension;
+            user.setMediaPath("/uploads/" + newFileName);
+            user.setMediaType(file.getContentType());
+
+            utilisateurRepository.save(user);
+
+            File directory = new File(System.getProperty("user.dir") + "/uploads/profil");
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            Path filePath = Paths.get(System.getProperty("user.dir") + "/uploads/profil", newFileName);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            return ResponseEntity.ok("Image uploadée avec succès : /uploads/" + newFileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Erreur lors de l'upload de l'image.");
+        }
+
+
+    }
     @GetMapping(path = "/nbrUtilisateur")
     public ResponseEntity<Long> nbrUtilisateur(){
         return new ResponseEntity<>(utilisateurService.nbrUtilisateur(), HttpStatus.OK);
@@ -70,7 +115,13 @@ public class UtilisateurController {
     }
 
     @PostMapping("connexion")
-    public Object connexion(@RequestBody AuthenticationDto authenticationDto) {
+    public Object connexion(@RequestBody AuthenticationDto authenticationDto,@RequestHeader("Authorization") String authorizationHeader) {
+        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        String token=authorizationHeader.substring(7);
+        String userMail= jwtUtil.extractEmailFromToken(token);
+
         try {
             log.info("Tentative de connexion pour : {}", authenticationDto.email());
 
@@ -84,6 +135,13 @@ public class UtilisateurController {
             );
             log.info("Utilisateur authentifié : {}", authenticate.isAuthenticated());
 
+
+            Connexion connexion=new Connexion();
+            connexion.setDernierConnexion(LocalDateTime.now());
+            user.setActive(true);
+            utilisateurRepository.save(user);
+            connexion.setUtilisateur(user);
+            connexionRepository.save(connexion);
             // Générer un token JWT si authentification réussie
             return jwtUtil.generateToken(user);
 
@@ -122,6 +180,13 @@ public class UtilisateurController {
     @GetMapping("userList")
     public ResponseEntity<List<Utilisateur>> userList() {
         List<Utilisateur> utilisateurs = utilisateurService.userList();
+        for (Utilisateur utilisateur:utilisateurs){
+            List<Connexion> selectedConnexions=connexionRepository.findByUtilisateurId(utilisateur.getId());
+            if(selectedConnexions !=null){
+                utilisateur.setActive(true);
+                utilisateurRepository.save(utilisateur);
+            }
+        }
         if (utilisateurs.isEmpty()) {return ResponseEntity.notFound().build();}
         return ResponseEntity.ok(utilisateurs);
     }

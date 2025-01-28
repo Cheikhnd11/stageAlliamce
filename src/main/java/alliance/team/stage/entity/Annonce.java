@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,6 +22,14 @@ public class Annonce {
     @NotBlank
     private String titre;
     private String description;
-    private String mediaPath; // Chemin ou URL du média
-    private String mediaType; // Type MIME (image/png, video/mp4, etc.)
+    private String mediaPath;
+    private String mediaType;
+    @Column(nullable = false)
+    private LocalDateTime datePublication;
+
+    @PrePersist
+    public void prePersist() {
+        this.datePublication = LocalDateTime.now();
+    }
+
 }
