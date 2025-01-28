@@ -18,6 +18,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 
 import java.util.Properties;
 
@@ -39,13 +40,20 @@ public class SecurityConfig {
                                                 .requestMatchers(POST, "/user/passwordForgeted/{email}").hasRole("ADMIN")
                                                 .requestMatchers(POST, "/user/activation").permitAll()
                                                 .requestMatchers(POST, "/user/connexion").permitAll()
+                                                .requestMatchers(POST, "/annonces/ajoutAnnonce").permitAll()
+                                                .requestMatchers(DELETE, "/annonces/{id}").permitAll()
                                                 .requestMatchers(POST, "/user/initialisePassword").permitAll()
+                                                .requestMatchers(POST, "/user/deactivate").permitAll()
+                                                .requestMatchers(GET, "/annonces").permitAll()
                                                 .anyRequest().authenticated()
                         )
                         .addFilterBefore(new JWTUtilFilter(jwtUtil()), UsernamePasswordAuthenticationFilter.class) // Ajout du filtre
                         .httpBasic(Customizer.withDefaults())
                         .build();
     }
+
+
+
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {

@@ -1,7 +1,7 @@
 package alliance.team.stage.service;
 
 import alliance.team.stage.entity.RoleUtilisateur;
-import alliance.team.stage.repository.RoleUtilisateurRipository;
+import alliance.team.stage.repository.RoleUtilisateurRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
 @Service
 public class RoleUtilisateurService {
 
-    private final RoleUtilisateurRipository roleUtilisateurRipository;
+    private final RoleUtilisateurRepository roleUtilisateurRipository;
 
     public void persisteRoleUtilisateur(RoleUtilisateur role) {roleUtilisateurRipository.save(role);}
 

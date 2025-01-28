@@ -39,6 +39,10 @@ public class JWTUtil {
         }
     }
 
+    public String extractEmailFromToken(String token){
+        return extractClaims(token).get("email").toString();
+    }
+
     public Claims extractClaims(String token) {
         try {
             return Jwts.parserBuilder()
