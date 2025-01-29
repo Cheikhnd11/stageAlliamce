@@ -14,8 +14,6 @@ import java.io.File;
 @AllArgsConstructor
 public class AnnonceService {
     private AnnonceRepository annonceRepository;
-    //    private NotificationRepository notificationRepository;
-    private UtilisateurService utilisateurService;
 
     public List<Annonce> getAllAnnonces() {
         return annonceRepository.findAll();
@@ -35,6 +33,7 @@ public class AnnonceService {
 
     public String saveMedia(MultipartFile file) throws Exception {
         String baseUploadDir = "C:" + File.separator + "uploads";
+
         // Création du sous-dossier si nécessaire
         File directory = new File(baseUploadDir);
         if (!directory.exists()) {
@@ -48,14 +47,4 @@ public class AnnonceService {
 
         return filePath; // Retourne le chemin complet du fichier
     }
-
-//    public List<Annonce> getAllAnnoncesForUser(Long userid) {
-//        Utilisateur user = utilisateurService.findById(userid);
-//        List<Notification> notifications = notificationRepository.findByUtilisateur(user);
-//        List<Annonce> annonces = new java.util.ArrayList<>();
-//        for (Notification notification : notifications) {
-//            annonces.add(notification.getAnnonce());
-//        }
-//        return annonces;
-//    }
 }

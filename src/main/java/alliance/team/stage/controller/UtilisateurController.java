@@ -17,7 +17,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -65,7 +64,6 @@ public class UtilisateurController {
             utilisateurService.inscription(utilisateur);
         }catch (Exception e) {
             e.printStackTrace();
-
         }
     }
 
@@ -100,9 +98,8 @@ public class UtilisateurController {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Erreur lors de l'upload de l'image.");
         }
-
-
     }
+
     @GetMapping(path = "/nbrUtilisateur")
     public ResponseEntity<Long> nbrUtilisateur(){
         return new ResponseEntity<>(utilisateurService.nbrUtilisateur(), HttpStatus.OK);
@@ -151,8 +148,6 @@ public class UtilisateurController {
         }
     }
 
-
-
     @PostMapping(path = "passwordForgeted/{email}")
     public ResponseEntity<String> passwordForgeted(@PathVariable String email) {
         try {
@@ -165,7 +160,6 @@ public class UtilisateurController {
             e.printStackTrace();
         }
         throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-
     }
 
     @PutMapping("initialisePassword")
@@ -199,7 +193,6 @@ public class UtilisateurController {
             return ResponseEntity.ok("Suppression reussie !");
         }catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-
         }
     }
 
@@ -214,10 +207,8 @@ public class UtilisateurController {
         userToUpdate.setPassword(passwordEncoder.encode(utilisateur.getPassword()));
         utilisateurService.save(userToUpdate);
         return ResponseEntity.ok("Modifiaction reussie !");
-    }
-        catch (Exception e) {
+        }catch (Exception e) {
             throw new RuntimeException("Modifiaction echouee !");
         }
-
     }
 }

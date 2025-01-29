@@ -31,5 +31,4 @@ public class Annonce {
     public void prePersist() {
         this.datePublication = LocalDateTime.now();
     }
-
 }

@@ -4,16 +4,12 @@ import alliance.team.stage.entity.Annonce;
 import alliance.team.stage.service.AnnonceService;
 import alliance.team.stage.service.NotificationService;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,17 +22,10 @@ import java.util.UUID;
 
 @RestController
 @AllArgsConstructor
-
 @RequestMapping("annonces")
 public class AnnonceController {
-
     private final AnnonceService annonceService;
-
-    private final  NotificationService notificationService;
-
-
-//    @Value("${file.upload-dir}")
-//    private String uploadDir;
+    private final NotificationService notificationService;
 
     @GetMapping
     public ResponseEntity<List<Annonce>> getAllAnnonces() {
@@ -44,21 +33,12 @@ public class AnnonceController {
         return ResponseEntity.ok(annonces);
     }
 
-//    @GetMapping("actualite")
-//    public ResponseEntity<List<Annonce>> getAnnoncesByUser(@RequestParam Long userid) {
-//        List<Annonce> annonces = annonceService.getAllAnnoncesForUser(userid);
-//        return ResponseEntity.ok(annonces);
-//    }
-
     @GetMapping("{id}")
     public ResponseEntity<Annonce> getAnnonceById(@PathVariable Long id) {
         return annonceService.getAnnonceById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
-
-
-
 
     @PostMapping("ajoutAnnonce")
     public ResponseEntity<String> uploadImage(@RequestParam("titre") String titre,
@@ -97,10 +77,6 @@ public class AnnonceController {
             return ResponseEntity.status(500).body("Erreur lors de l'upload de l'image.");
         }
     }
-
-
-
-
 
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteAnnonce(@PathVariable Long id) {

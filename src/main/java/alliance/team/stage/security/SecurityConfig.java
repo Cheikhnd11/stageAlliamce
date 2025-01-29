@@ -40,7 +40,7 @@ public class SecurityConfig {
                                                 .requestMatchers(POST, "/user/passwordForgeted/{email}").hasRole("ADMIN")
                                                 .requestMatchers(POST, "/user/activation").permitAll()
                                                 .requestMatchers(POST, "/user/connexion").permitAll()
-                                                .requestMatchers(POST, "/annonces/ajoutAnnonce").permitAll()
+                                                .requestMatchers(POST, "/annonces/ajoutAnnonce").hasRole("ADMIN")
                                                 .requestMatchers(DELETE, "/annonces/{id}").permitAll()
                                                 .requestMatchers(POST, "/user/initialisePassword").permitAll()
                                                 .requestMatchers(POST, "/user/deactivate").permitAll()
@@ -51,9 +51,6 @@ public class SecurityConfig {
                         .httpBasic(Customizer.withDefaults())
                         .build();
     }
-
-
-
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
