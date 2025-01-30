@@ -15,7 +15,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -25,10 +24,11 @@ import java.util.stream.Collectors;
 @Transactional
 @AllArgsConstructor
 public class UtilisateurService implements UserDetailsService {
-
     private final ValidationRepository validationRepository;
     private final CodeRepository codeRepository;
     private final PasswordEncoder passwordEncoder;
+    private  ValidationService validationService;
+    private UtilisateurRepository utilisateurRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -51,30 +51,33 @@ public class UtilisateurService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur introuvable avec l'email : " + email));
     }
 
-
-    private  ValidationService validationService;
-    private UtilisateurRepository utilisateurRepository;
     public void inscription(Utilisateur utilisateur) {
         utilisateurRepository.save(utilisateur);
         validationService.saveValidation(utilisateur);
-
     }
 
     public Utilisateur findUserByMail(String mail) {return utilisateurRepository.findByEmail(mail)
             .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouve pour l'email: "+mail));
     }
 
-    public List<Utilisateur> userList() {return utilisateurRepository.findAll();}
+    public List<Utilisateur> userList() {
+        return utilisateurRepository.findAll();
+    }
 
     @Transactional
     public void deleteUser(Utilisateur utilisateur) {
         validationRepository.delete((int) utilisateur.getId());
-        utilisateurRepository.delete(utilisateur);}
-
-    public Utilisateur findById(long id) {return utilisateurRepository.findById(id).get();}
-
-    public void save(Utilisateur userToUpdate) {utilisateurRepository.save(userToUpdate);
+        utilisateurRepository.delete(utilisateur);
     }
+
+    public Utilisateur findById(long id) {
+        return utilisateurRepository.findById(id).get();
+    }
+
+    public void save(Utilisateur userToUpdate) {
+        utilisateurRepository.save(userToUpdate);
+    }
+
     public Long nbrUtilisateur(){
         return utilisateurRepository.count();
     }

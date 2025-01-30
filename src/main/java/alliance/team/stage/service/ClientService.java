@@ -2,6 +2,7 @@ package alliance.team.stage.service;
 
 import alliance.team.stage.entity.Client;
 import alliance.team.stage.repository.ClientRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class ClientService {
     private ClientRepository clientRepository;
 
@@ -16,8 +18,8 @@ public class ClientService {
         return clientRepository.findAll();
     }
 
-    public Client getClientById(Long id) {
-        return clientRepository.findById(id).orElse(null);
+    public Optional<Client> getClientById(Long id) {
+        return clientRepository.findById(id);
     }
 
     public void addClient(Client client) {
@@ -28,7 +30,7 @@ public class ClientService {
         clientRepository.deleteById(id);
     }
 
-    public Boolean getClientByEmail(String email) {
-        return clientRepository.findByEmail(email).isPresent();
+    public Optional<Client> getClientByEmail(String email) {
+        return clientRepository.findByEmail(email);
     }
 }

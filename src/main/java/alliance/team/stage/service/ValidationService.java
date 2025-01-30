@@ -4,6 +4,7 @@ import alliance.team.stage.entity.Utilisateur;
 import alliance.team.stage.entity.ValidationCompte;
 import alliance.team.stage.repository.UtilisateurRepository;
 import alliance.team.stage.repository.ValidationRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,6 +14,7 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class ValidationService {
     private final ValidationRepository validationRepository;
     private final NotificationService notificationService;

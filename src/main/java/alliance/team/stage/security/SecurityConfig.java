@@ -18,10 +18,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-
 import java.util.Properties;
-
 import static org.springframework.http.HttpMethod.*;
 
 @Configuration
@@ -45,6 +42,7 @@ public class SecurityConfig {
                                                 .requestMatchers(POST, "/user/initialisePassword").permitAll()
                                                 .requestMatchers(POST, "/user/deactivate").permitAll()
                                                 .requestMatchers(GET, "/annonces").permitAll()
+                                                .requestMatchers("/reservation").hasRole("GESTIONNAIRE")
                                                 .anyRequest().authenticated()
                         )
                         .addFilterBefore(new JWTUtilFilter(jwtUtil()), UsernamePasswordAuthenticationFilter.class) // Ajout du filtre

@@ -3,6 +3,7 @@ package alliance.team.stage.service;
 import alliance.team.stage.entity.*;
 import alliance.team.stage.repository.CodeRepository;
 import alliance.team.stage.repository.UtilisateurRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,6 +15,7 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class NotificationService {
     private final JavaMailSender javaMailSender;
     private final UtilisateurRepository utilisateurRepository;

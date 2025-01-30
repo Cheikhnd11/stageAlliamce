@@ -1,8 +1,8 @@
 package alliance.team.stage.service;
 
 import alliance.team.stage.entity.Annonce;
-import alliance.team.stage.entity.Utilisateur;
 import alliance.team.stage.repository.AnnonceRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -12,6 +12,7 @@ import java.io.File;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class AnnonceService {
     private AnnonceRepository annonceRepository;
 

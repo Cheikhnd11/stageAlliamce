@@ -132,7 +132,6 @@ public class UtilisateurController {
             );
             log.info("Utilisateur authentifié : {}", authenticate.isAuthenticated());
 
-
             Connexion connexion=new Connexion();
             connexion.setDernierConnexion(LocalDateTime.now());
             user.setActive(true);

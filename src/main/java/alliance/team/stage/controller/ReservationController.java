@@ -1,8 +1,6 @@
 package alliance.team.stage.controller;
 
-import alliance.team.stage.entity.Client;
 import alliance.team.stage.entity.Reservation;
-import alliance.team.stage.entity.Salle;
 import alliance.team.stage.service.ClientService;
 import alliance.team.stage.service.ReservationService;
 import alliance.team.stage.service.SalleService;
@@ -16,23 +14,11 @@ import java.util.List;
 @RequestMapping("reservation")
 public class ReservationController {
     private final ReservationService reservationService;
-    private final ClientService clientService;
-    private final SalleService salleService;
 
     @PostMapping("ajoutReservation")
-    public ResponseEntity<String> ajoutReservation(@RequestBody Reservation reservation) {
+    public ResponseEntity<?> ajoutReservation(@RequestBody Reservation reservation) {
         try {
-            Client client = reservation.getClient();
-            if (!clientService.getClientByEmail(client.getEmail())) {
-                clientService.addClient(client);
-                reservation.setClient(client);
-            }
-            Salle salle = reservation.getSalle();
-            if (!salleService.findByName(salle.getName())) {
-                salleService.save(salle);
-                reservation.setSalle(salle);
-            }
-            reservationService.save(reservation);
+            reservationService.reservation(reservation);
             return ResponseEntity.ok("Salle réservée avec succés");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Erreur lors de la réservation de la salle : " + e.getMessage());
@@ -55,7 +41,10 @@ public class ReservationController {
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteReservation(@PathVariable Long id) {
         try {
-            reservationService.delete(id);
+            Reservation reservation = reservationService.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Réservation introuvable"));
+
+            reservationService.delete(reservation);
             return ResponseEntity.ok("Réservation supprimée avec succès !");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Erreur lors de la suppression : " + e.getMessage());
@@ -65,24 +54,7 @@ public class ReservationController {
     @PutMapping("{id}")
     public ResponseEntity<String> updateReservation(@PathVariable Long id, @RequestBody Reservation reservation) {
         try {
-            Client client = reservation.getClient();
-            if (!(clientService.getClientByEmail(client.getEmail()))) {
-                clientService.addClient(client);
-                reservation.setClient(client);
-            }
-            Salle salle = reservation.getSalle();
-            if (!(salleService.findByName(salle.getName()))) {
-                salleService.save(salle);
-                reservation.setSalle(salle);
-            }
-
-            Reservation r = reservationService.findById(id).get();
-            r.setClient(reservation.getClient());
-            r.setSalle(reservation.getSalle());
-            r.setDate(reservation.getDate());
-            r.setEndDate(reservation.getEndDate());
-            r.setStartDate(reservation.getStartDate());
-            reservationService.save(r);
+            reservationService.reservation(reservation);
             return ResponseEntity.ok("Salle modifiée avec succés");
         }catch (Exception e) {
             return ResponseEntity.badRequest().body("Erreur lors de le modification : " + e.getMessage());
