@@ -9,6 +9,8 @@ import alliance.team.stage.repository.SalleRepository;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,14 +34,25 @@ public class ReservationService {
         return reservationRepository.findById(id);
     }
 
-    public void reservation(Reservation reservation) {
+    public Boolean reservation(Reservation reservation) {
         Client client = clientRepository.findByEmail(reservation.getClient().getEmail())
                 .orElseGet(() -> clientRepository.save(reservation.getClient()));
         reservation.setClient(client);
         Salle salle = salleRepository.findById(reservation.getSalle().getId())
                 .orElseGet(() -> salleRepository.save(reservation.getSalle()));
         reservation.setSalle(salle);
-        save(reservation);
+        reservation.setDate(LocalDate.now());
+        List<Reservation> conflits = reservationRepository.findConflictingReservations(salle.getId(), reservation.getStartDate(), reservation.getEndDate());
+
+        if (!conflits.isEmpty()) {
+            return false; // Salle déjà réservée à ces dates
+        }
+
+        reservationRepository.save(reservation);
+        return true; // Réservation confirmée
+//        if (!reservation.getSalle().isReserved()) {
+//            save(reservation);
+//        }
     }
 
     public void delete(Reservation reservation) {

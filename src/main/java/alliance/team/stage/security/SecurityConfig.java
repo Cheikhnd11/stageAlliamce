@@ -42,7 +42,8 @@ public class SecurityConfig {
                                                 .requestMatchers(POST, "/user/initialisePassword").permitAll()
                                                 .requestMatchers(POST, "/user/deactivate").permitAll()
                                                 .requestMatchers(GET, "/annonces").permitAll()
-                                                .requestMatchers("/reservation").hasRole("GESTIONNAIRE")
+                                                .requestMatchers("/reservation/**").hasAnyRole("GESTIONNAIRE","ADMIN")
+                                                .requestMatchers("/salle/**").hasAnyRole("GESTIONNAIRE","ADMIN")
                                                 .anyRequest().authenticated()
                         )
                         .addFilterBefore(new JWTUtilFilter(jwtUtil()), UsernamePasswordAuthenticationFilter.class) // Ajout du filtre
