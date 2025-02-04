@@ -18,5 +18,4 @@ public class Salle {
     @Column(unique = true)
     private String name;
     private int nbPlace;
-    private boolean reserved = false;
 }

@@ -50,9 +50,6 @@ public class ReservationService {
 
         reservationRepository.save(reservation);
         return true; // Réservation confirmée
-//        if (!reservation.getSalle().isReserved()) {
-//            save(reservation);
-//        }
     }
 
     public void delete(Reservation reservation) {
